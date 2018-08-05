@@ -6,9 +6,11 @@ output: html_document
 ---
 
 ```{r setup, echo=TRUE, include=TRUE, cache=FALSE}
-options(width=130)
+options(width=131)
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
+##Section 1: Answers to Case Study 2 Tasks
 
 ###Introduction to this project: DDSAnalytics is an analytics company that specializes in talent management solutions for Fortune 1000 companies. Talent management is defined as the iterative process of developing and retaining employees. It may include workforce planning, employee training programs, identifying high-potential employees and reducing/preventing voluntary employee turnover (attrition). To gain a competitive edge over its competition, DDSAnalytics is planning to leverage data science for talent management. The executive leadership has identified predicting employee turnover as its first application of data science for talent management. Before the business green lights the project, they have tasked your data science team to conduct an analysis of existing employee data.
 
@@ -22,7 +24,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 #install.packages("csvread")
 library(csvread)
-setwd("~/Qsync/datascience/msds6306_doing_datascience/DDS-CaseStudy-2/Dataset")
+setwd("C:\\Users\\allen\\Documents\\SMU Data Science\\MSDS6306 - Doing Data Science\\Case Study 2")
 workforce.df <- read.csv("CaseStudy2-data.csv", header=TRUE, stringsAsFactors = TRUE, sep = ",")
 
 #Get number of rows in the dataset
@@ -73,7 +75,7 @@ summary(workforce.df$Over18)
 #install.packages("pastecs")
 library(pastecs)
 attach(workforce.df)
-scores <- cbind(Age, Attrition, BusTravel, DayRate, Department, DistFromHome, Education, EducField, EmpCount, EmpNumber, EnvironSat, Gender, HourRate, JobInvolve, JobLevel, JobRole, JobSat, MaritalStat, MonthInc, MonthRate, NumCompWrkd, Over18, OverTime, PctSalHike, PerfRating, RelationSat, StdHours, StkOptLvl, TotWorkYrs, TrngTmLstYr, WrkLifBal, YrsAtComp, YrsCurRole, YrsLstPromo, YrsCurrMgr)
+scores <- cbind(Age, Attrition, BusTravel, Department, DistFromHome, Education, EducField, MonthRate)
 options(scipen=100)
 options(digits=2)
 stat.desc(scores, basic=F)
@@ -117,16 +119,13 @@ ggplot(data.frame(workforce.df),aes(x=JobRole)) + geom_bar(fill = "#CC79A7") + t
 with(droplevels(workforce.df[which(workforce.df$JobRole!= "Healthcare Representative" & workforce.df$JobRole!= "Human Resources" & workforce.df$JobRole!= "Laboratory Technician" & workforce.df$JobRole!= "Research Scientist" & workforce.df$JobRole!= "Sales Representative"),]), summary(JobRole))
 
 with(droplevels(workforce.df[which(workforce.df$JobRole!= "Healthcare Representative" & workforce.df$JobRole!= "Human Resources" & workforce.df$JobRole!= "Laboratory Technician" & workforce.df$JobRole!= "Research Scientist" & workforce.df$JobRole!= "Sales Representative"),]), 
-plot(JobRole, las=2))
-
-
-
-
-
+plot(JobRole, las=2, cex.xaxis=0.8))
 ```
+
+
 ###4.Deeper Analysis and Visualization 
 ###4A. (Note: You should make all of these appealing looking.  Remember to include things like a clean, informative title, axis labels that are in plain English, and readable axis values that do not overlap.)
-###4B. Create bar charts in ggplot or similar. The bars should be in descending order, Use any color palette of your choice other than the default.
+###4B. Create bar charts in ggplot or similar. The bars should be in descending order, Use any color palette of your choice other than the default. (Note: See Regression Coefficients output from Predictive Model summary below)
 
 
 ###4C. Is there a relationship between Age and Income?  Create a scatterplot and make an assessment of whether there is a relationship.  Color each point based on the Gender of the participant.  You're welcome to use lm() or similar functions to back up your claims.
@@ -155,16 +154,8 @@ model2_plot
 
 
 
+##Section 2: Building the model to predict Attrition
 
-
-
-
-
-
-
-
-
-###Building the model to predict Attrition
 ###The following is our approach to build a predictive model for Attrition. This will form the basis of our recommendation in our presentation.
 
 ###Add row number to master, and insert as a unique column into data set. We will break out the master file into a factor data set and a categorical data set. The categorical data set will be flattened into a one hot encoded file. Preserving the ID column allows us something to join on, when we merge these files back together when we build the model.
@@ -230,6 +221,37 @@ model <- glm(Attrition_Yes ~.,family=binomial(link='logit'),data=workforce_ohe_t
 summary(model)
 ```
 
+###In the following steps, we format the model outputs to create a list of the top coefficients, by the absolute Z Score values.
+
+```{r}
+#Output Coefficients of the model into a data frame. We will format these to graph the top Coefficient values
+#install.packages("broom")
+library(broom)
+model_output.df <- tidy(model)
+
+#Create Model Output 2 file of Coefficients and Z Scores
+model_output2.df <- data.frame(model_output.df$term, model_output.df$statistic)
+colnames(model_output2.df) <- c("term", "statistic")
+head(model_output2.df)
+
+#Create Model Output 3 file of Top 10 Coefficients by absolute value of Z Scores
+#install.packages("dplyr")
+library(dplyr)
+model_output3.df <- top_n(model_output2.df, 10, abs(model_output2.df$statistic))
+head(model_output3.df)
+
+#Create Model Output 4 file that sorts the Top 10 Coefficients for graphing
+model_output4.df <- model_output3.df[order(model_output3.df$statistic,decreasing = FALSE),]
+
+#Graph the Top 10 Coefficients by Z Score
+ylim <- c(-9,5)
+barplot(model_output4.df$statistic, col="#3F97D0", main="Top 10 Model Coefficients to Predict Attrition", ylab="Z Score", names.arg=model_output4.df$term, cex.names=0.8, las=2, ylim = ylim)
+model_output2.df <- data.frame(model_output.df$term, model_output.df$statistic)
+```
+
+
+##Section 3: Validating the model for fit
+
 ###Now we can run the anova() function on the model to analyze the table of deviance
 
 ```{r}
@@ -267,4 +289,7 @@ auc <- performance(pr, measure = "auc")
 auc <- auc@y.values[[1]]
 auc
 ```
+
+
+
 
