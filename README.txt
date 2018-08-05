@@ -1,3 +1,20 @@
+#ReadMe.md for Case Study 2 - Predicting Attrition Using HR Data
+#Includes Codebook
+
+Slack:    https://ddscasestudyacqn.slack.com/messages/CB0FH2HMH/  
+GitHub:   https://github.com/ccgraves/DDS-CaseStudy-2
+ 
+This repository is for the case study group of SMU MSDS 6306 404 members:  
+
+Quincy Roundtree                | e: qroundtree@mail.smu.edu  p: 702.305.9592   
+Christopher Graves              | e: ccgraves@mail.smu.edu    p: 214.542.1971  
+Allen Crane                     | e: acrane@mail.smu.edu    p: 210.913.5072  
+Nick Cellini                    | e: ncellini@smu.edu         p: 717.490.4880   
+Heber Nielsen                   | e: hcnielsen@mail.smu.edu   p:  
+
+
+
+
 ReadMe.md for Project 2 - Predicting Attrition Using HR Data
 Last Revised August 5, 2018
 
@@ -198,7 +215,7 @@ YearsWithCurrManager	numeric:integer, countable value	0-17 (countable)
 			The training set will be used to fit our model which we will be testing over the testing set. 
 			Note that the training data set is ~2/3 the size of the total data, because a training 
 			set at 1/2 the size of the total data did not converge.
-		ix.	Now, let’s fit the model. Be sure to specify the parameter family=binomial 
+		ix.	Now, let?s fit the model. Be sure to specify the parameter family=binomial 
 			in the glm() function. Note that we upped the max iterations to 50, 
 			in order to override the default number of iterations. 
 			That said, this model converges at 15 iterations.
@@ -222,7 +239,7 @@ YearsWithCurrManager	numeric:integer, countable value	0-17 (countable)
 			the McFadden R2 index can be used to assess the model fit.
 		iii.	Assessing the predictive ability of the model: In the steps above, we briefly 
 			evaluated the fitting of the model, now we would like to see how the model is 
-			doing when predicting y on a new set of data. By setting the parameter type=‘response’, 
+			doing when predicting y on a new set of data. By setting the parameter type=?response?, 
 			R will output probabilities in the form of P(y=1|X). Our decision boundary will be 0.5. 
 			If P(y=1|X) > 0.5 then y = 1 otherwise y=0. Note that for some applications different 
 			decision boundaries could be a better option.
