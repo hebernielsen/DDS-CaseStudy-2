@@ -24,7 +24,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 #install.packages("csvread")
 library(csvread)
-setwd("C:\\Users\\allen\\Documents\\SMU Data Science\\MSDS6306 - Doing Data Science\\Case Study 2")
+setwd("~/Qsync/datascience/msds6306_doing_datascience/DDS-CaseStudy-2/Dataset")
 workforce.df <- read.csv("CaseStudy2-data.csv", header=TRUE, stringsAsFactors = TRUE, sep = ",")
 
 #Get number of rows in the dataset
