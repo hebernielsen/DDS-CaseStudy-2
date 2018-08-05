@@ -1,0 +1,225 @@
+---
+title: "Project 2 - Predicting Employee Attrition From HR Data"
+author: "Allen Crane, Nicholas Cellini, Quincy Roundtree, Heber Nelson, Carter Graves"
+date: "July 25, 2018"
+output: html_document
+---
+
+```{r setup, echo=TRUE, include=TRUE, cache=FALSE}
+options(width=131)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r}
+#install.packages("csvread")
+library(csvread)
+setwd("~/Qsync/datascience/msds6306_doing_datascience/DDS-CaseStudy-2/Dataset")
+workforce.df <- read.csv("CaseStudy2-data.csv", header=TRUE, stringsAsFactors = TRUE, sep = ",")
+
+#Get number of rows in the dataset
+nrow(workforce.df)
+
+#Get number of columns in the dataset
+ncol(workforce.df)
+
+#View the dataset
+head(workforce.df)
+
+#Summary statistics of the dataset
+summary(workforce.df)
+```
+
+
+```{r}
+sapply(workforce.df, class)
+```
+
+```{r}
+summary(workforce.df$Over18)
+```
+
+```{r}
+#create descriptive statistics
+
+#install.packages("pastecs")
+library(pastecs)
+attach(workforce.df)
+scores <- cbind(Age, Attrition, BusTravel, Department, DistFromHome, Education, EducField, MonthRate)
+options(scipen=100)
+options(digits=2)
+stat.desc(scores, basic=F)
+
+#create historgrams (Age and Monthly Income)
+
+#install.packages("ggplot2")
+library(ggplot2)
+hist(workforce.df$Age,
+     main="Histogram for Age", 
+     xlab="Age", 
+     col="blue",
+     las=1, 
+     breaks=10)
+
+hist(workforce.df$MonthRate,
+     main="Histogram for Monthly Income", 
+     xlab="Monthly Income",
+     xlim=c(2000,30000),
+     ylim=c(0,80),
+     col="green",
+     las=1, 
+     breaks=25)
+```
+
+```{r}
+ggplot(data.frame(workforce.df),aes(x=Gender)) + geom_bar(fill = "#FF6666") 
+ggplot(data.frame(workforce.df),aes(x=Education)) + geom_bar(fill = "#D55E00")
+ggplot(data.frame(workforce.df),aes(x=JobRole)) + geom_bar(fill = "#CC79A7") + theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5))
+```
+
+
+```{r}
+
+with(droplevels(workforce.df[which(workforce.df$JobRole!= "Healthcare Representative" & workforce.df$JobRole!= "Human Resources" & workforce.df$JobRole!= "Laboratory Technician" & workforce.df$JobRole!= "Research Scientist" & workforce.df$JobRole!= "Sales Representative"),]), summary(JobRole))
+
+with(droplevels(workforce.df[which(workforce.df$JobRole!= "Healthcare Representative" & workforce.df$JobRole!= "Human Resources" & workforce.df$JobRole!= "Laboratory Technician" & workforce.df$JobRole!= "Research Scientist" & workforce.df$JobRole!= "Sales Representative"),]), 
+plot(JobRole, las=2, cex.xaxis=0.8))
+```
+
+
+
+```{r}
+model2 <- lm(MonthRate ~ Age, data=workforce.df)
+summary(model2)
+
+fill = c("steelblue", "pink")
+library(ggplot2)
+model2_plot <- ggplot(workforce.df, aes(Age, MonthRate, fill = Gender)) +
+  geom_point(shape = 21) +
+  theme_bw() +
+  theme() +
+  ggtitle("Monthly Income by Age") +
+  labs(x = "Age", y = "Monthly Income", fill = "Gender") +
+  scale_fill_manual(values = fill) +
+  scale_size(range = c(1, 10)) +
+  theme(legend.position="bottom", legend.direction="horizontal")
+model2_plot
+```
+
+
+```{r}
+library(tidyverse)
+workforce.df <- tibble::rowid_to_column(workforce.df, "ID")
+```
+
+
+
+```{r}
+workforce_factors.df <- workforce.df[c(1,2,3,5,7,10,11,14,20,21,22,25,28,30,31,33,34,35,36)]
+workforce_categories.df <- workforce.df[c(1,3,4,6,8,9,12,13,15,16,17,18,19,23,24,25,27,29,32)]
+```
+
+
+
+```{r}
+#install.packages("data.table")
+library(data.table)
+workforce_categories_onehot.df <- dcast(melt(workforce_categories.df, id.vars='ID'), ID ~ variable + value, fun = length)
+```
+
+
+```{r}
+workforce_ohe.df <- merge(workforce_factors.df, workforce_categories_onehot.df, by="ID")
+```
+
+
+```{r}
+workforce_ohe.df$Attrition <- NULL
+workforce_ohe.df$Attrition_No <- NULL
+```
+.
+
+```{r}
+#library(Amelia)
+#missmap(workforce_ohe.df, main = "Missing values vs observed")
+```
+
+```{r}
+workforce_ohe_train.df <- workforce_ohe.df[1:1000,]
+workforce_ohe_test.df <- workforce_ohe.df[1001:1470,]
+```
+
+
+```{r}
+model <- glm(Attrition_Yes ~.,family=binomial(link='logit'),data=workforce_ohe_train.df, control=list(maxit=50))
+```
+
+```{r}
+summary(model)
+```
+
+###In the following steps, we format the model outputs to create a list of the top coefficients, by the absolute Z Score values.
+
+```{r}
+#Output Coefficients of the model into a data frame. We will format these to graph the top Coefficient values
+#install.packages("broom")
+library(broom)
+model_output.df <- tidy(model)
+
+#Create Model Output 2 file of Coefficients and Z Scores
+model_output2.df <- data.frame(model_output.df$term, model_output.df$statistic)
+colnames(model_output2.df) <- c("term", "statistic")
+head(model_output2.df)
+
+#Create Model Output 3 file of Top 10 Coefficients by absolute value of Z Scores
+#install.packages("dplyr")
+library(dplyr)
+model_output3.df <- top_n(model_output2.df, 10, abs(model_output2.df$statistic))
+head(model_output3.df)
+
+#Create Model Output 4 file that sorts the Top 10 Coefficients for graphing
+model_output4.df <- model_output3.df[order(model_output3.df$statistic,decreasing = FALSE),]
+
+#Graph the Top 10 Coefficients by Z Score
+ylim <- c(-9,5)
+barplot(model_output4.df$statistic, col="#3F97D0", main="Top 10 Model Coefficients to Predict Attrition", ylab="Z Score", names.arg=model_output4.df$term, cex.names=0.8, las=2, ylim = ylim)
+model_output2.df <- data.frame(model_output.df$term, model_output.df$statistic)
+```
+
+
+
+
+```{r}
+anova(model, test="Chisq")
+```
+
+```{r}
+#install.packages("pscl")
+library(pscl)
+pR2(model)
+```
+
+```{r}
+fitted.results <- predict(model,newdata=subset(workforce_ohe_test.df,type='response'))
+fitted.results <- ifelse(fitted.results > 0.5,1,0)
+misClasificError <- mean(fitted.results != workforce_ohe_test.df$Attrition_Yes)
+print(paste('Accuracy',1-misClasificError))
+```
+
+```{r}
+#install.packages("ROCR")
+library(ROCR)
+p <- predict(model, newdata=subset(workforce_ohe_test.df, type="response"))
+pr <- prediction(p, workforce_ohe_test.df$Attrition)
+prf <- performance(pr, measure = "tpr", x.measure = "fpr")
+plot(prf)
+
+auc <- performance(pr, measure = "auc")
+auc <- auc@y.values[[1]]
+auc
+```
+
+
+
+
