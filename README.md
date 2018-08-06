@@ -26,18 +26,18 @@ This Codebook is organized as follows:
 
 
 ---------------------------------------------
-1. Authors and Contact Information
+#1. Authors and Contact Information
 
-This codebook is for the case study group of SMU MSDS 6306 404 members:
+####This codebook is for the case study group of SMU MSDS 6306 404 members:
 
-Quincy Roundtree | e: qroundtree@mail.smu.edu p: 702.305.9592
-Christopher Graves | e: ccgraves@mail.smu.edu p: 214.542.1971
-Allen Crane | e: acrane@mail.smu.edu p: 210.913.5072
-Nick Cellini | e: ncellini@smu.edu p: 717.490.4880
-Heber Nielsen | e: hcnielsen@mail.smu.edu p:
+######Quincy Roundtree | e: qroundtree@mail.smu.edu p: 702.305.9592
+######Christopher Graves | e: ccgraves@mail.smu.edu p: 214.542.1971
+######Allen Crane | e: acrane@mail.smu.edu p: 210.913.5072
+######Nick Cellini | e: ncellini@smu.edu p: 717.490.4880
+######Heber Nielsen | e: hcnielsen@mail.smu.edu p:
 
 
-2. Data
+#2. Data
 	2.A. Github Location Library
 		
 		https://github.com/ccgraves/DDS-CaseStudy-2 	
@@ -46,15 +46,13 @@ Heber Nielsen | e: hcnielsen@mail.smu.edu p:
 
 		Project 2.rmd (Case Study 2 Markdown file)
 		Project 2.html (Case Study 2 HTML file)		
-	
+		
 	2.C. Core Data File Codebook
 		
 		./Dataset/CaseStudy2-Data.xlsx (Core data file containing HR data and Attition information)
+-Variable Variable Type Allowable Values
 
-
-Variable		Variable Type				Allowable Values
-
-Age			numeric:integer, countable value	18-60 (countable)
+-Age  numeric integer countable value	18-60 (countable)|
 
 Attrition		factor					Yes, No
 
@@ -162,58 +160,61 @@ YearsSinceLastPromotion	numeric:integer, countable value	0-15 (countable)
 
 YearsWithCurrManager	numeric:integer, countable value	0-17 (countable)
 
+</p>
 
 3. Processing Steps
 
 		Both Project 2.rmd and Project 2.html are organized according to the following sections
 	
 	3.A. Answers to Case Study 2 Tasks
-		Data cleansing
-			Read the data into R
-			Reformat column names to 12 characters or less
-			Validate columns are in proper data type
-	     	Preliminary Analysis	
-			Remove observations where participant is under 18
-			Descriptive Statistics on 10 variables
-			Histograms for Age, Monthly Income
-			Frequencies for Gender, Education, Occupation
-			Counts of management positions
-		Deeper Analysis and Visualization
-			Bar charts in ggplot or similar
-			See Regression Coefficients output from Predictive Model
-			Relationship between Age and Income
-			Life Satisfaction		
+	
+      Data cleansing
+      Read the data into R
+      Reformat column names to 12 characters or less
+      Validate columns are in proper data type
+      Preliminary Analysis	
+      Remove observations where participant is under 18
+      Descriptive Statistics on 10 variables
+      Histograms for Age, Monthly Income
+      Frequencies for Gender, Education, Occupation
+      Counts of management positions
+      Deeper Analysis and Visualization
+      Bar charts in ggplot or similar
+      See Regression Coefficients output from Predictive Model
+      Relationship between Age and Income
+      Life Satisfaction		
 
+'''
 	3.B. Building the Model to Predict Attrition
 
-		i.	The following is our approach to build a predictive model for Attrition. 
+    i.	The following is our approach to build a predictive model for Attrition. 
 			This will form the basis of our recommendation in our presentation.
-		ii.	Add row number to master, and insert as a unique column into data set. 
-			We will break out the master file into a factor data set and a categorical data set. 
-			The categorical data set will be flattened into a one hot encoded file. 
-			Preserving the ID column allows us something to join on, when we merge these 
-			files back together when we build the model.
-		iii.	Split data set into factors and categories, including row IDs
-		iv. 	One hot encoding for categorical data
-		v.	Merge data files together
-		vi.	Remove the Attrition categorical variables, because they are perfectly correlated values
-		vii.	The following modeling code was adapted from: 
-			https://datascienceplus.com/perform-logistic-regression-in-r/
-			A visual take on the missing values might be helpful: the Amelia package has a special 
-			plotting function missmap() that will plot your dataset and highlight missing values. 
-			In our case, this adds nothing meaningful.
-		viii.	We split the data into two chunks: training and testing set. 
-			The training set will be used to fit our model which we will be testing over the testing set. 
-			Note that the training data set is ~2/3 the size of the total data, because a training 
-			set at 1/2 the size of the total data did not converge.
-		ix.	Now, let?s fit the model. Be sure to specify the parameter family=binomial 
-			in the glm() function. Note that we upped the max iterations to 50, 
-			in order to override the default number of iterations. 
-			That said, this model converges at 15 iterations.
-		x.	By using function summary() we obtain the results of our model
-		xi.	Format the model outputs to create a list of the top coefficients, 
-			by the absolute Z Score values.
-		xii.	Output Coefficients of the model into a data frame. 
+    ii.	Add row number to master, and insert as a unique column into data set. 
+      We will break out the master file into a factor data set and a categorical data set. 
+      The categorical data set will be flattened into a one hot encoded file. 
+      Preserving the ID column allows us something to join on, when we merge these 
+      files back together when we build the model.
+    iii.	Split data set into factors and categories, including row IDs
+    iv. 	One hot encoding for categorical data
+    v.	Merge data files together
+    vi.	Remove the Attrition categorical variables, because they are perfectly correlated values
+    vii.	The following modeling code was adapted from: 
+      https://datascienceplus.com/perform-logistic-regression-in-r/
+      A visual take on the missing values might be helpful: the Amelia package has a special 
+      plotting function missmap() that will plot your dataset and highlight missing values. 
+      In our case, this adds nothing meaningful.
+    viii.	We split the data into two chunks: training and testing set. 
+      The training set will be used to fit our model which we will be testing over the testing set. 
+      Note that the training data set is ~2/3 the size of the total data, because a training 
+      set at 1/2 the size of the total data did not converge.
+    ix.	Now, let?s fit the model. Be sure to specify the parameter family=binomial 
+      in the glm() function. Note that we upped the max iterations to 50, 
+      in order to override the default number of iterations. 
+      That said, this model converges at 15 iterations.
+    x.	By using function summary() we obtain the results of our model
+    xi.	Format the model outputs to create a list of the top coefficients, 
+      by the absolute Z Score values.
+    xii.	Output Coefficients of the model into a data frame. 
 			We will format these to graph the top Coefficient values
 		xiii.	Create Model Output 2 file of Coefficients and Z Scores
 		xiv.	Create Model Output 3 file of Top 10 Coefficients by absolute value of Z Scores
@@ -221,7 +222,7 @@ YearsWithCurrManager	numeric:integer, countable value	0-17 (countable)
 		xvi.	Graph the Top 10 Coefficients by Z Score
 		xvii.	Conduct what-if analysis, showing the effect of moving each variable 1 unit, 
 			and the subsequent impact on Attrition
-
+''''
 	3.C. Validating the Model to Predict Attrition 
 
 		i.	Validating the model for fit
