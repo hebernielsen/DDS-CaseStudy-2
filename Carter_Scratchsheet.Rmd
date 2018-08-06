@@ -42,7 +42,8 @@ summary(workforce.df$Over18)
 
 ```{r}
 #create descriptive statistics
-
+colnames(workforce.df) <- c("Age", "Attrition", "BusTravel", "DayRate", "Department", "DistFromHome", "Education", "EducField", "EmpCount", "EmpNumber", "EnvironSat", "Gender", "HourRate", "JobInvolve", "JobLevel", "JobRole", "JobSat", "MaritalStat", "MonthInc", "MonthRate", "NumCompWrkd", "Over18", "OverTime", "PctSalHike", "PerfRating", "RelationSat", "StdHours", "StkOptLvl", "TotWorkYrs", "TrngTmLstYr", "WrkLifBal", "YrsAtComp", "YrsCurRole", "YrsLstPromo", "YrsCurrMgr")
+head(workforce.df)
 #install.packages("pastecs")
 library(pastecs)
 attach(workforce.df)
@@ -162,6 +163,14 @@ summary(model)
 ###In the following steps, we format the model outputs to create a list of the top coefficients, by the absolute Z Score values.
 
 ```{r}
+
+reduced <- as.data.frame(workforce_ohe.df$DistanceFromHome)
+names(reduced) <- c("DistanceFromHome")
+reduced$NumCompaniesWorked <- workforce_ohe.df$NumCompaniesWorked
+reduced$YearsSinceLastPromotion <- workforce_ohe.df$YearsSinceLastPromotion
+reduced$BusinessTravel_Travel_Frequently <- workforce_ohe.df$BusinessTravel_Travel_Frequently 
+model <- glm(Attrition_Yes ~.,family=binomial(link='logit'),data=reduced, control=list(maxit=50))
+summary(reduced)
 #Output Coefficients of the model into a data frame. We will format these to graph the top Coefficient values
 #install.packages("broom")
 library(broom)
